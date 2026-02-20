@@ -3,8 +3,7 @@
   "private": true,
   "scripts": {
     "build": "remix vite:build",
-    "dev": "shopify app dev --tunnel-url https://proportion-removed-post-daughter.trycloudflare.com:3000",
-    "dev:vite": "remix vite:dev",
+    "dev": "shopify app dev",
     "config:link": "shopify app config link",
     "generate": "shopify app generate",
     "deploy": "shopify app deploy",
