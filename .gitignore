@@ -5,3 +5,5 @@ build/
 .cache/
 dist/
 *.tgz
+prisma/dev.db
+prisma/dev.db-journal
