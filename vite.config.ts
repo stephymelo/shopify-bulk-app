@@ -35,6 +35,7 @@ export default defineConfig({
   server: {
     port: Number(process.env.PORT || 3000),
     hmr: hmrConfig,
+    allowedHosts: true,
     fs: {
       allow: ["app", "node_modules"],
     },

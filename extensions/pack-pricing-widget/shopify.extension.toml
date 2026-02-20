@@ -1,6 +1,7 @@
 api_version = "2025-01"
 
 [[extensions]]
+uid = "470e07c7-5a1e-e4ff-287e-b64a351872025bc1b27a"
 type = "theme"
 name = "Pack Pricing Widget"
 handle = "pack-pricing-widget"
