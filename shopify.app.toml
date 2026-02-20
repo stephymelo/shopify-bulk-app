@@ -2,7 +2,7 @@
 
 client_id = "9d3924a3ddfb50c6baa839f94c63d4ed"
 name = "Pack Pricing"
-application_url = "https://example.com"
+application_url = "https://promotes-connecting-builds-sunny.trycloudflare.com"
 embedded = true
 
 [access_scopes]
@@ -16,4 +16,8 @@ api_version = "2025-01"
   uri = "/webhooks"
 
 [auth]
-redirect_urls = []
+redirect_urls = [
+  "https://promotes-connecting-builds-sunny.trycloudflare.com/auth/callback",
+  "https://promotes-connecting-builds-sunny.trycloudflare.com/auth/shopify/callback",
+  "https://promotes-connecting-builds-sunny.trycloudflare.com/shopify/auth/callback"
+]
