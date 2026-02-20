@@ -1,0 +1,155 @@
+{% comment %}
+  Case Pricing Widget - Case Selector Block
+  ==========================================
+  This block displays on a base product page and shows all linked case products.
+  Customers can see the case price and calculated unit price, then click to navigate
+  to the case product page.
+
+  Requires metafields on the base product:
+    - case_pricing.case_products  (list.product_reference)
+
+  And on each case product:
+    - case_pricing.units_per_case (number_integer)
+    - case_pricing.case_price     (money)
+    - case_pricing.case_sku       (single_line_text_field)
+{% endcomment %}
+
+{% assign case_products = product.metafields.case_pricing.case_products.value %}
+
+{% if case_products != blank and case_products.size > 0 %}
+  <div class="case-pricing-widget" style="margin: 1.5rem 0;">
+    <div class="case-pricing-widget__header" style="margin-bottom: 0.75rem;">
+      <p style="font-weight: 600; font-size: 1rem; margin: 0 0 0.25rem;">
+        {{ block.settings.heading | default: 'Also available by the case' }}
+      </p>
+      {% if block.settings.subheading != blank %}
+        <p style="font-size: 0.875rem; color: #6b7280; margin: 0;">
+          {{ block.settings.subheading }}
+        </p>
+      {% endif %}
+    </div>
+
+    <div class="case-pricing-widget__options" style="display: flex; flex-wrap: wrap; gap: 0.75rem;">
+      {% for case_product in case_products %}
+        {% assign units_mf = case_product.metafields.case_pricing.units_per_case %}
+        {% assign price_mf = case_product.metafields.case_pricing.case_price %}
+        {% assign sku_mf = case_product.metafields.case_pricing.case_sku %}
+
+        {% assign units = units_mf.value | plus: 0 %}
+        {% assign case_price_raw = price_mf.value | plus: 0.0 %}
+
+        {% if units > 0 and case_price_raw > 0 %}
+          {% assign unit_price = case_price_raw | divided_by: units %}
+
+          <a
+            href="{{ case_product.url }}"
+            class="case-pricing-widget__pill"
+            style="
+              display: block;
+              padding: 0.75rem 1rem;
+              border: 1px solid {{ block.settings.border_color | default: '#e5e7eb' }};
+              border-radius: {{ block.settings.border_radius | default: '8' }}px;
+              text-decoration: none;
+              color: inherit;
+              background: {{ block.settings.background_color | default: '#ffffff' }};
+              transition: box-shadow 0.15s ease, border-color 0.15s ease;
+              min-width: 140px;
+            "
+            onmouseover="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.12)'; this.style.borderColor='{{ block.settings.hover_color | default: '#6366f1' }}';"
+            onmouseout="this.style.boxShadow='none'; this.style.borderColor='{{ block.settings.border_color | default: '#e5e7eb' }}';"
+          >
+            <p style="font-weight: 600; font-size: 0.9375rem; margin: 0 0 0.25rem;">
+              {{ case_product.title }}
+            </p>
+
+            {% if sku_mf.value != blank %}
+              <p style="font-size: 0.75rem; color: #9ca3af; margin: 0 0 0.375rem;">
+                SKU: {{ sku_mf.value }}
+              </p>
+            {% endif %}
+
+            <p style="font-size: 0.875rem; margin: 0 0 0.125rem; font-weight: 500;">
+              {{ case_price_raw | money }} / case
+            </p>
+
+            <p style="font-size: 0.8125rem; color: {{ block.settings.unit_price_color | default: '#059669' }}; margin: 0; font-weight: 500;">
+              {{ unit_price | money }} / unit
+              <span style="font-weight: 400; color: #6b7280;">
+                ({{ units }} units)
+              </span>
+            </p>
+
+            <p style="
+              font-size: 0.75rem;
+              margin: 0.5rem 0 0;
+              color: {{ block.settings.link_color | default: '#6366f1' }};
+              font-weight: 500;
+            ">
+              View case &rarr;
+            </p>
+          </a>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+{% endif %}
+
+{% schema %}
+{
+  "name": "Case Pricing",
+  "target": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Also available by the case"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading",
+      "info": "Optional secondary text under the heading"
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Pill border color",
+      "default": "#e5e7eb"
+    },
+    {
+      "type": "color",
+      "id": "hover_color",
+      "label": "Pill hover border color",
+      "default": "#6366f1"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Pill background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "unit_price_color",
+      "label": "Unit price text color",
+      "default": "#059669"
+    },
+    {
+      "type": "color",
+      "id": "link_color",
+      "label": "'View case' link color",
+      "default": "#6366f1"
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "label": "Pill border radius (px)",
+      "min": 0,
+      "max": 24,
+      "step": 2,
+      "default": 8
+    }
+  ]
+}
+{% endschema %}

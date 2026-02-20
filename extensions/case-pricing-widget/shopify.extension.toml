@@ -1,0 +1,7 @@
+api_version = "2025-01"
+
+[[extensions]]
+uid = "2724c289-193f-32ac-08b9-dc93fcc0ab0be91d361d"
+type = "theme"
+name = "Case Pricing Widget"
+handle = "case-pricing-widget"
