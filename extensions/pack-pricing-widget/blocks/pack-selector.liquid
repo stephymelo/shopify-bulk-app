@@ -1,0 +1,299 @@
+{% comment %}
+  Pack Pricing Widget — Pack Selector
+  ====================================
+  Displays on base product pages. Shows all linked pack products
+  with price, unit price, and savings badge.
+
+  Metafields required:
+    Base product:  pack_config.pack_products  (list.product_reference)
+    Pack product:  pack_config.units_per_pack (number_integer)
+                   pack_config.pack_price     (single_line_text_field)
+{% endcomment %}
+
+{% assign pack_products = product.metafields.pack_config.pack_products.value %}
+
+{% if pack_products != blank and pack_products.size > 0 %}
+  {% assign base_price = product.price | times: 1.0 %}
+
+  <div class="pp-widget" style="
+    margin: {{ block.settings.margin_top }}px 0 {{ block.settings.margin_bottom }}px;
+    font-family: inherit;
+  ">
+    {%- if block.settings.heading != blank -%}
+      <p class="pp-widget__heading" style="
+        font-weight: 600;
+        font-size: {{ block.settings.heading_size }}px;
+        margin: 0 0 {{ block.settings.gap }}px;
+        color: {{ block.settings.heading_color }};
+      ">
+        {{ block.settings.heading }}
+      </p>
+    {%- endif -%}
+
+    {%- if block.settings.subheading != blank -%}
+      <p style="font-size: 0.875rem; color: #6b7280; margin: 0 0 {{ block.settings.gap }}px;">
+        {{ block.settings.subheading }}
+      </p>
+    {%- endif -%}
+
+    <div class="pp-widget__grid" style="
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax({{ block.settings.card_min_width }}px, 1fr));
+      gap: {{ block.settings.gap }}px;
+    ">
+      {%- for pack in pack_products -%}
+        {% assign units = pack.metafields.pack_config.units_per_pack.value | plus: 0 %}
+        {% assign pack_price_str = pack.metafields.pack_config.pack_price.value %}
+        {% assign pack_price = pack_price_str | plus: 0.0 %}
+
+        {% if units > 0 and pack_price > 0 %}
+          {% assign unit_price_cents = pack_price | divided_by: units %}
+          {% assign base_unit_price = base_price | divided_by: 100.0 %}
+
+          {% if base_unit_price > 0 %}
+            {% assign savings_amount = base_unit_price | minus: unit_price_cents %}
+            {% assign savings_pct = savings_amount | times: 100.0 | divided_by: base_unit_price %}
+          {% else %}
+            {% assign savings_pct = 0 %}
+          {% endif %}
+
+          <a
+            href="{{ pack.url }}"
+            class="pp-widget__card"
+            style="
+              display: flex;
+              flex-direction: column;
+              padding: 1rem 1.25rem;
+              border: {{ block.settings.border_width }}px solid {{ block.settings.border_color }};
+              border-radius: {{ block.settings.border_radius }}px;
+              text-decoration: none;
+              color: inherit;
+              background: {{ block.settings.card_bg }};
+              transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+              position: relative;
+              overflow: hidden;
+            "
+            onmouseover="
+              this.style.borderColor='{{ block.settings.accent_color }}';
+              this.style.boxShadow='0 4px 12px rgba(0,0,0,0.08)';
+              this.style.transform='translateY(-2px)';
+            "
+            onmouseout="
+              this.style.borderColor='{{ block.settings.border_color }}';
+              this.style.boxShadow='none';
+              this.style.transform='none';
+            "
+          >
+            {%- if savings_pct > 0 and block.settings.show_savings -%}
+              <span style="
+                position: absolute;
+                top: 0; right: 0;
+                background: {{ block.settings.savings_bg }};
+                color: {{ block.settings.savings_color }};
+                font-size: 0.6875rem;
+                font-weight: 700;
+                padding: 0.25rem 0.625rem;
+                border-bottom-left-radius: {{ block.settings.border_radius }}px;
+                letter-spacing: 0.02em;
+              ">
+                SAVE {{ savings_pct | round }}%
+              </span>
+            {%- endif -%}
+
+            <p style="font-weight: 600; font-size: 0.9375rem; margin: 0 0 0.25rem; line-height: 1.3;">
+              {{ pack.title }}
+            </p>
+
+            <p style="font-size: 0.8125rem; color: #6b7280; margin: 0 0 0.625rem;">
+              {{ units }} units per pack
+            </p>
+
+            <div style="margin-top: auto;">
+              <p style="
+                font-size: 1.125rem;
+                font-weight: 700;
+                margin: 0;
+                color: {{ block.settings.price_color }};
+              ">
+                {{ pack_price | times: 100 | money }}
+              </p>
+
+              <p style="
+                font-size: 0.8125rem;
+                color: {{ block.settings.unit_price_color }};
+                font-weight: 500;
+                margin: 0.25rem 0 0;
+              ">
+                {{ unit_price_cents | times: 100 | money }} / unit
+              </p>
+            </div>
+
+            <span style="
+              display: inline-block;
+              margin-top: 0.75rem;
+              font-size: 0.8125rem;
+              color: {{ block.settings.accent_color }};
+              font-weight: 600;
+            ">
+              View pack →
+            </span>
+          </a>
+        {% endif %}
+      {%- endfor -%}
+    </div>
+  </div>
+{% endif %}
+
+{% schema %}
+{
+  "name": "Pack Pricing",
+  "target": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Buy in bulk & save"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading",
+      "info": "Optional text below heading"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_savings",
+      "label": "Show savings badge",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "card_min_width",
+      "label": "Minimum card width (px)",
+      "min": 120,
+      "max": 300,
+      "step": 10,
+      "default": 180
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "label": "Gap between cards (px)",
+      "min": 4,
+      "max": 24,
+      "step": 2,
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "margin_top",
+      "label": "Margin top (px)",
+      "min": 0,
+      "max": 48,
+      "step": 4,
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "margin_bottom",
+      "label": "Margin bottom (px)",
+      "min": 0,
+      "max": 48,
+      "step": 4,
+      "default": 24
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "label": "Heading font size (px)",
+      "min": 14,
+      "max": 28,
+      "step": 1,
+      "default": 18
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading color",
+      "default": "#111827"
+    },
+    {
+      "type": "color",
+      "id": "card_bg",
+      "label": "Card background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Card border",
+      "default": "#e5e7eb"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color (hover, links)",
+      "default": "#4f46e5"
+    },
+    {
+      "type": "color",
+      "id": "price_color",
+      "label": "Price color",
+      "default": "#111827"
+    },
+    {
+      "type": "color",
+      "id": "unit_price_color",
+      "label": "Unit price color",
+      "default": "#059669"
+    },
+    {
+      "type": "color",
+      "id": "savings_bg",
+      "label": "Savings badge background",
+      "default": "#059669"
+    },
+    {
+      "type": "color",
+      "id": "savings_color",
+      "label": "Savings badge text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Card Style"
+    },
+    {
+      "type": "range",
+      "id": "border_width",
+      "label": "Border width (px)",
+      "min": 0,
+      "max": 3,
+      "step": 1,
+      "default": 1
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "label": "Border radius (px)",
+      "min": 0,
+      "max": 24,
+      "step": 2,
+      "default": 10
+    }
+  ]
+}
+{% endschema %}

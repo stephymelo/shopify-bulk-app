@@ -1,14 +1,21 @@
 /**
- * Calculate unit price from case price and units per case.
- * Returns 0 if either value is invalid.
+ * Calculate unit price from pack price and units per pack.
  */
-export function calculateUnitPrice(casePrice: number, unitsPerCase: number): number {
-  if (!casePrice || !unitsPerCase || unitsPerCase <= 0) return 0;
-  return casePrice / unitsPerCase;
+export function calculateUnitPrice(packPrice: number, unitsPerPack: number): number {
+  if (!packPrice || !unitsPerPack || unitsPerPack <= 0) return 0;
+  return packPrice / unitsPerPack;
 }
 
 /**
- * Format a number as a money string (USD).
+ * Calculate savings percentage vs buying individual units.
+ */
+export function calculateSavings(unitPrice: number, packUnitPrice: number): number {
+  if (!unitPrice || unitPrice <= 0 || !packUnitPrice) return 0;
+  return Math.round(((unitPrice - packUnitPrice) / unitPrice) * 100);
+}
+
+/**
+ * Format a number as currency.
  */
 export function formatMoney(amount: number, currency = "USD"): string {
   return new Intl.NumberFormat("en-US", {
