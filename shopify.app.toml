@@ -2,8 +2,12 @@
 
 client_id = "9d3924a3ddfb50c6baa839f94c63d4ed"
 name = "Pack Pricing"
-application_url = "https://proportion-removed-post-daughter.trycloudflare.com"
+application_url = "https://shopify.dapperlogic.xyz"
 embedded = true
+
+[build]
+automatically_update_urls_on_dev = true
+include_config_on_deploy = true
 
 [access_scopes]
 scopes = "read_products,write_products,read_inventory,write_inventory"
@@ -17,7 +21,7 @@ api_version = "2025-01"
 
 [auth]
 redirect_urls = [
-  "https://proportion-removed-post-daughter.trycloudflare.com/auth/callback",
-  "https://proportion-removed-post-daughter.trycloudflare.com/auth/shopify/callback",
-  "https://proportion-removed-post-daughter.trycloudflare.com/shopify/auth/callback"
+  "https://shopify.dapperlogic.xyz/auth/callback",
+  "https://shopify.dapperlogic.xyz/auth/shopify/callback",
+  "https://shopify.dapperlogic.xyz/shopify/auth/callback"
 ]
